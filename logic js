@@ -1,0 +1,62 @@
+// Initial State
+let currentBalance = 52450.00;
+const transactions = [
+    { recipient: "Apple Store", date: "Oct 12, 2025", amount: -999.00, status: "Completed" },
+    { recipient: "Salary Deposit", date: "Oct 10, 2025", amount: 4500.00, status: "Completed" },
+    { recipient: "Netflix", date: "Oct 08, 2025", amount: -15.99, status: "Pending" }
+];
+
+// Initialize UI
+function init() {
+    updateBalanceUI();
+    renderTransactions();
+}
+
+function updateBalanceUI() {
+    document.getElementById('total-balance').innerText = `$${currentBalance.toLocaleString()}`;
+}
+
+function renderTransactions() {
+    const tableBody = document.getElementById('transaction-body');
+    tableBody.innerHTML = transactions.map(tx => `
+        <tr>
+            <td>${tx.recipient}</td>
+            <td>${tx.date}</td>
+            <td style="color: ${tx.amount > 0 ? '#05cd99' : '#ee5d50'}">
+                ${tx.amount > 0 ? '+' : ''}${tx.amount.toFixed(2)}
+            </td>
+            <td><span class="status-pill">${tx.status}</span></td>
+        </tr>
+    `).join('');
+}
+
+function handleTransfer() {
+    const amountInput = document.getElementById('amount-input');
+    const amount = parseFloat(amountInput.value);
+
+    if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    if (amount > currentBalance) {
+        alert("Insufficient funds.");
+        return;
+    }
+
+    // Process Transaction
+    currentBalance -= amount;
+    transactions.unshift({
+        recipient: "External Transfer",
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        amount: -amount,
+        status: "Completed"
+    });
+
+    // Update UI
+    amountInput.value = '';
+    updateBalanceUI();
+    renderTransactions();
+}
+
+init();
